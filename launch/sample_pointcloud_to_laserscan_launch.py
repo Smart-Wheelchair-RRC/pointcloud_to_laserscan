@@ -4,26 +4,25 @@ from launch.substitutions import LaunchConfiguration
 from launch_ros.actions import Node
 
 
-def generate_launch_description():
-    DeclareLaunchArgument(
-            "cloud_in",
-            default_value="/livox/lidar",
-            description="Input PointCloud2 topic"
-        ),
-    DeclareLaunchArgument(
-            "scan",
-            default_value="/livox/scan",
-            description="Output LaserScan topic"
-        ),
-    
+def generate_launch_description():    
     return LaunchDescription(
         [
+            DeclareLaunchArgument(
+                "cloud_in",
+                default_value="/livox/lidar",
+                description="Input PointCloud2 topic"
+            ),
+            DeclareLaunchArgument(
+                "scan",
+                default_value="/scan",
+                description="Output LaserScan topic"
+            ),
             Node(
                 package="pointcloud_to_laserscan",
                 executable="pointcloud_to_laserscan_node",
                 parameters=[
                     {
-                        "target_frame": "livox_frame",
+                        "target_frame": "base_footprint",
                         "transform_tolerance": 0.01,
                         "min_height": 0.0,  # 0
                         "max_height": 1.3,  # 1
