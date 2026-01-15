@@ -9,10 +9,25 @@ import yaml
 
 def generate_launch_description():
     return LaunchDescription([
+        # 1. Declare Arguments
         DeclareLaunchArgument(
             name='scanner', default_value='scanner',
             description='Namespace for sample topics'
         ),
+        
+        DeclareLaunchArgument(
+            name='scan_in',
+            default_value=[LaunchConfiguration('scanner'), '/scan'],
+            description='Input LaserScan topic'
+        ),
+
+        DeclareLaunchArgument(
+            name='cloud',
+            default_value=[LaunchConfiguration('scanner'), '/cloud'],
+            description='Output PointCloud2 topic'
+        ),
+        
+        # 2. Fake LaserScan Publisher (Publishes to 'scanner/scan' by default)
         ExecuteProcess(
             cmd=[
                 'ros2', 'topic', 'pub', '-r', '10',
@@ -26,6 +41,8 @@ def generate_launch_description():
             ],
             name='scan_publisher'
         ),
+        
+        # 3. TF Publisher
         Node(
             package='tf2_ros',
             executable='static_transform_publisher',
@@ -36,12 +53,19 @@ def generate_launch_description():
                 '--frame-id', 'map', '--child-frame-id', 'scan'
             ]
         ),
+
+        # 4. LaserScan -> PointCloud Node
         Node(
             package='pointcloud_to_laserscan',
             executable='laserscan_to_pointcloud_node',
             name='laserscan_to_pointcloud',
-            remappings=[('scan_in', [LaunchConfiguration(variable_name='scanner'), '/scan']),
-                        ('cloud', [LaunchConfiguration(variable_name='scanner'), '/cloud'])],
-            parameters=[{'target_frame': 'scan', 'transform_tolerance': 0.01}]
+            parameters=[{
+                'target_frame': 'scan', 
+                'transform_tolerance': 0.01,
+                
+                # Use the Launch Arguments to set the Node Parameters
+                'scan_in': LaunchConfiguration('scan_in'),
+                'cloud': LaunchConfiguration('cloud')
+            }]
         ),
     ])

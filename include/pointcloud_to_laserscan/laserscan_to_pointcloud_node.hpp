@@ -91,6 +91,8 @@ private:
   int input_queue_size_;
   std::string target_frame_;
   double tolerance_;
+  std::string input_topic_;
+  std::string output_topic_;
 };
 
 }  // namespace pointcloud_to_laserscan

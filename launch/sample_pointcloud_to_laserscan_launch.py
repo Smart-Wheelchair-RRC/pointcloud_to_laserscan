@@ -5,13 +5,22 @@ from launch_ros.actions import Node
 
 
 def generate_launch_description():
+    DeclareLaunchArgument(
+            "cloud_in",
+            default_value="/livox/lidar",
+            description="Input PointCloud2 topic"
+        ),
+    DeclareLaunchArgument(
+            "scan",
+            default_value="/livox/scan",
+            description="Output LaserScan topic"
+        ),
+    
     return LaunchDescription(
         [
             Node(
                 package="pointcloud_to_laserscan",
                 executable="pointcloud_to_laserscan_node",
-                # remappings=[('cloud_in', '/livox/lidar'),
-                #             ('scan', '/livox/scan')],
                 parameters=[
                     {
                         "target_frame": "livox_frame",
@@ -26,6 +35,8 @@ def generate_launch_description():
                         "range_max": 50.0,
                         "use_inf": True,
                         "inf_epsilon": 1.0,
+                        "cloud_in": LaunchConfiguration("cloud_in"),
+                        "scan": LaunchConfiguration("scan")
                     }
                 ],
                 name="pointcloud_to_laserscan",
